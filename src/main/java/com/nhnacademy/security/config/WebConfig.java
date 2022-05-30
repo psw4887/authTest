@@ -71,7 +71,8 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Mes
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/admin").setViewName("admin");
+        registry.addViewController("/form").setViewName("form");
+        registry.addViewController("/userLogout").setViewName("userLogout");
 //        TODO: 로그인 후 인덱스 페이지로 보내기
 //        registry.addRedirectViewController("/redirect-index", "/");
     }
