@@ -2,6 +2,7 @@ package com.nhnacademy.security.config;
 
 import com.nhnacademy.security.service.CustomUserDetailService;
 import java.io.IOException;
+import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .logout()
                 .and()
             .csrf()
-                .disable()
+                .and()
             .sessionManagement()
                 .sessionFixation()
                     .none()
