@@ -1,12 +1,15 @@
 package com.nhnacademy.security.config;
 
+import com.nhnacademy.security.service.CustomUserDetailService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -28,25 +31,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .disable()
             .sessionManagement()
                 .sessionFixation()
-                    .none();
+                    .none()
+                .and()
+            .headers();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-            .withUser("admin")
-            .password("{noop}admin")
-            .authorities("ROLE_ADMIN")
-            .and()
-            .withUser("member")
-            .password("{noop}member")
-            .authorities("ROLE_MEMBER")
-            .and()
-            .withUser("guest")
-            .password("{noop}guest")
-            .authorities("ROLE_GUEST");
+        auth.authenticationProvider(authenticationProvider(null));
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(CustomUserDetailSerivce)
+    public AuthenticationProvider authenticationProvider(CustomUserDetailService customUserDetailService) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(customUserDetailService);
+        authenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder());
+
+        return authenticationProvider;
+    }
 }
