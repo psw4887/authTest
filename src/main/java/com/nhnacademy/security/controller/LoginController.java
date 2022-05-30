@@ -24,7 +24,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public String doLogin(@RequestParam("id")String id,
-                          @RequestParam("pw")String pw,
+                          @RequestParam("pwd")String pw,
                           HttpServletRequest request) {
         if(service.isMemberExist(id, pw)) {
             HttpSession session = request.getSession();
