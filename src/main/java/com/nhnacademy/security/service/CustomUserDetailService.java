@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailService implements UserDetailsService {
 
     private final MemberRepository repository;
-    private final AuthorotiyRepository authrepository;
+    private final AuthorotiyRepository authRepository;
 
-    public CustomUserDetailService(MemberRepository repository, AuthorotiyRepository authrepository) {
+    public CustomUserDetailService(MemberRepository repository, AuthorotiyRepository authRepository) {
         this.repository = repository;
-        this.authrepository = authrepository;
+        this.authRepository = authRepository;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class CustomUserDetailService implements UserDetailsService {
             return null;
         }
 
-        Authorotiy authorotiy = authrepository.findById(username).orElseThrow(NullPointerException::new);
+        Authorotiy authorotiy = authRepository.findById(username).orElseThrow(NullPointerException::new);
         SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority(authorotiy.getAuthority());
 
         return new User(member.getMemberId(), member.getPw(), Collections.singletonList(grantedAuthority));
