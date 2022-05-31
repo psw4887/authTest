@@ -16,18 +16,17 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name="Authoroties")
-public class Authorotiy {
+public class Authority {
 
     @Id
     @Column(name = "member_id")
     private String memberId;
 
+    @Column(name = "authority")
+    private String authority;
+
     @MapsId("memberId")
     @OneToOne
     @JoinColumn(name = "member_id")
     private Member member;
-
-    @Column(name = "authority")
-    private String authority;
-
 }
