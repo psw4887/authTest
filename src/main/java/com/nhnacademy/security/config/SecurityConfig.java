@@ -9,8 +9,15 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -24,12 +31,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/redirect-index").authenticated()
                 .anyRequest().permitAll()
                 .and()
-            .formLogin()
-                .usernameParameter("id")
-                .passwordParameter("pwd")
-                .loginPage("/auth/login") // 로그인 처리할 곳 (실 처리:webConfig)
-                .loginProcessingUrl("/login") // 실 요청 처리 페이지 (URL)
+            .requiresChannel()
+                .antMatchers("/admin/**").requiresSecure()
+                .antMatchers("/private-project/**").requiresSecure()
+                .antMatchers("/project/**").requiresSecure()
+                .anyRequest().requiresInsecure()
                 .and()
+            .oauth2Login()
+                .clientRegistrationRepository(clientRegistrationRepository())
+                .authorizedClientService(authorizedClientService())
+                .and()
+//            .formLogin()
+//                .usernameParameter("id")
+//                .passwordParameter("pwd")
+//                .loginPage("/auth/login") // 로그인 처리할 곳 (실 처리:webConfig)
+//                .loginProcessingUrl("/login") // 실 요청 처리 페이지 (URL)
+//                .and()
             .logout()
                 .logoutUrl("/logout") // 실제 로그아웃 처리 url (POST /logout)
                 .and()
@@ -41,11 +58,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
             .headers()
                 .defaultsDisabled()
-                    .frameOptions()
-                        .sameOrigin()
-                    .cacheControl()
-                    .and()
-                    .contentTypeOptions();
+                .frameOptions().sameOrigin()
+                .cacheControl()
+                .and()
+            .contentTypeOptions()
+                .and()
+                .and()
+            .exceptionHandling()
+                .accessDeniedPage("/error/403")
+                .and();
     }
 
     @Override
@@ -65,5 +86,31 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public ClientRegistrationRepository clientRegistrationRepository() {
+        return new InMemoryClientRegistrationRepository(ClientRegistration.withRegistrationId("github")
+            .clientId(github().getClientId())
+            .clientSecret(github().getClientSecret())
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+            .redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
+            .authorizationUri("https://github.com/login/oauth/authorize")
+            .tokenUri("https://github.com/login/oauth/access_token")
+            .userNameAttributeName(github().getClientName())
+            .build());
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientService authorizedClientService() {
+        return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository());
+    }
+
+    private ClientRegistration github() {
+        return CommonOAuth2Provider.GITHUB.getBuilder("github")
+            .userNameAttributeName("name")
+            .clientId("fcaf07655762ce4a267b")
+            .clientSecret("c133dc6403fc1cf85d77c6063d1bd152011af49b ")
+            .build();
     }
 }
