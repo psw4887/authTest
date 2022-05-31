@@ -41,6 +41,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
             .headers()
                 .defaultsDisabled()
+                    .frameOptions()
+                        .sameOrigin()
                     .cacheControl()
                     .and()
                     .contentTypeOptions();
