@@ -36,6 +36,18 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Mes
     }
 
     @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("index");
+        registry.addViewController("/admin/**").setViewName("admin");
+        registry.addViewController("/private-project/**").setViewName("private-project");
+        registry.addViewController("/project/**").setViewName("project");
+        registry.addRedirectViewController("/redirect-index", "/");
+        registry.addViewController("/auth/login").setViewName("login");
+        registry.addViewController("/auth/logout").setViewName("logout");
+        registry.addViewController("/gitLogin").setViewName("gitLogin");
+    }
+
+    @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
         registry.viewResolver(thymeleafViewResolver());
     }
@@ -55,7 +67,8 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Mes
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.setTemplateResolver(templateResolver());
         templateEngine.setTemplateEngineMessageSource(messageSource);
-        templateEngine.addDialect(new SpringSecurityDialect());
+
+        templateEngine.addDialect(new SpringSecurityDialect()); // taglib > SpringSecurityDialect 추가
 
         return templateEngine;
     }
@@ -70,16 +83,5 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Mes
 
         return templateResolver;
     }
-
     //렌더링 페이지 처리
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("index");
-        registry.addViewController("/admin/**").setViewName("admin");
-        registry.addViewController("/private-project/**").setViewName("private-project");
-        registry.addViewController("/project/**").setViewName("project");
-        registry.addRedirectViewController("/redirect-index", "/");
-        registry.addViewController("/auth/login").setViewName("login");
-        registry.addViewController("/auth/logout").setViewName("logout");
-    }
 }

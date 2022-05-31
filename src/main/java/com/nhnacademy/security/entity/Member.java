@@ -30,7 +30,7 @@ public class Member implements UserDetails {
     private String name;
 
     @Column(name = "pwd")
-    private String pw;
+    private String pwd;
 
     @OneToOne(mappedBy = "member", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Authority authority;
@@ -42,7 +42,7 @@ public class Member implements UserDetails {
 
     @Override
     public String getPassword() {
-        return pw;
+        return pwd;
     }
 
     @Override

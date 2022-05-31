@@ -37,21 +37,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/project/**").requiresSecure()
                 .anyRequest().requiresInsecure()
                 .and()
+            .formLogin()
+                .usernameParameter("id")
+                .passwordParameter("pwd")
+                .loginPage("/auth/login") // 로그인 처리할 곳 (실 처리:webConfig)
+                .loginProcessingUrl("/login") // 실 요청 처리 페이지 (URL)
+                .and()
             .oauth2Login()
+                .loginPage("/auth/login")
                 .clientRegistrationRepository(clientRegistrationRepository())
                 .authorizedClientService(authorizedClientService())
                 .and()
-//            .formLogin()
-//                .usernameParameter("id")
-//                .passwordParameter("pwd")
-//                .loginPage("/auth/login") // 로그인 처리할 곳 (실 처리:webConfig)
-//                .loginProcessingUrl("/login") // 실 요청 처리 페이지 (URL)
-//                .and()
             .logout()
-                .logoutUrl("/logout") // 실제 로그아웃 처리 url (POST /logout)
+                .logoutUrl("/logout")// 실제 로그아웃 처리 url (POST /logout)
                 .and()
             .csrf()
-            .disable()
+                .and()
             .sessionManagement()
                 .sessionFixation()
                     .none()
@@ -59,10 +60,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .headers()
                 .defaultsDisabled()
                 .frameOptions().sameOrigin()
-                .cacheControl()
-                .and()
-            .contentTypeOptions()
-                .and()
                 .and()
             .exceptionHandling()
                 .accessDeniedPage("/error/403")
@@ -78,7 +75,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationProvider authenticationProvider(CustomUserDetailsService customUserDetailsService) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(customUserDetailsService);
-        authenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder());
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
 
         return authenticationProvider;
     }
@@ -90,15 +87,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
-        return new InMemoryClientRegistrationRepository(ClientRegistration.withRegistrationId("github")
-            .clientId(github().getClientId())
-            .clientSecret(github().getClientSecret())
-            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .redirectUri(github().getRedirectUri())
-            .authorizationUri("https://github.com/login/oauth/authorize")
-            .tokenUri("https://github.com/login/oauth/access_token")
-            .userNameAttributeName(github().getClientName())
-            .build());
+        return new InMemoryClientRegistrationRepository(github());
     }
 
     @Bean
@@ -108,9 +97,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private ClientRegistration github() {
         return CommonOAuth2Provider.GITHUB.getBuilder("github")
-            .userNameAttributeName("name")
             .clientId("fcaf07655762ce4a267b")
-            .clientSecret("c133dc6403fc1cf85d77c6063d1bd152011af49b ")
+            .clientSecret("22e83265d9668b2f67f4f0570f57ca2877dc9509")
+            .scope("name")
+            .redirectUri("http://localhost:8090/login/oauth2/code/github")
+            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
             .build();
     }
 }

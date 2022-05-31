@@ -25,7 +25,7 @@ public class MemberService {
         Member member = new Member();
         member.setMemberId(request.getId());
         member.setName(request.getName());
-        member.setPw(passwordEncoder.encode(request.getPwd()));
+        member.setPwd(passwordEncoder.encode(request.getPwd()));
 
         Authority authority = new Authority();
         authority.setMember(member);

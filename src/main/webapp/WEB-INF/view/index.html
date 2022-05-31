@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- taglib.spring security를 위한 namespace 선언 -->
 <html lang="ko"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
@@ -9,19 +10,24 @@
 <body>
 <h1>Main</h1>
 
+<a sec:authorize="isAuthenticated()" href="/auth/logout">LogOut</a>
+
 <th:block th:include="fragments/heading" />
 
 <ul>
+<!-- taglib.`sec:authorize`, `sec:authorize-url`-->
     <li sec:authorize="hasAuthority('ROLE_ADMIN')">
         <a href="/admin/manage">Admin Tool</a>
     </li>
-    <li sec:authorize-url="/project/1">
+    <li sec:authorize="isAuthenticated()">
         <a href="/project/1">Public Project</a>
     </li>
     <li sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MEMBER')">
         <a href="/private-project/2">Private Project</a>
     </li>
 </ul>
+
+<a sec:authorize="isAuthenticated()" href="/auth/logout">LogOut</a>
 
 <br />
 
