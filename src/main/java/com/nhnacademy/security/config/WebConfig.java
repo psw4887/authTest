@@ -71,11 +71,15 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware, Mes
         return templateResolver;
     }
 
+    //렌더링 페이지 처리
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/form").setViewName("form");
-        registry.addViewController("/userLogout").setViewName("userLogout");
-//        TODO: 로그인 후 인덱스 페이지로 보내기
-//        registry.addRedirectViewController("/redirect-index", "/");
+        registry.addViewController("/").setViewName("index");
+        registry.addViewController("/admin/**").setViewName("admin");
+        registry.addViewController("/private-project/**").setViewName("private-project");
+        registry.addViewController("/project/**").setViewName("project");
+        registry.addRedirectViewController("/redirect-index", "/");
+        registry.addViewController("/auth/login").setViewName("login");
+        registry.addViewController("/auth/logout").setViewName("logout");
     }
 }
